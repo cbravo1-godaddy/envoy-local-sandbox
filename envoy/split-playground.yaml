@@ -1,0 +1,130 @@
+static_resources:
+  listeners:
+    - address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 8080
+      filter_chains:
+        - filters:
+          - name: envoy.filters.network.http_connection_manager
+            typed_config: 
+              '@type': 'type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager'
+              stat_prefix: http_proxy
+              route_config:
+                name: all
+                virtual_hosts:
+                  - name: allbackend_cluster
+                    domains:
+                      - '*'
+                    routes:
+                      - match:  
+                          prefix: "/"
+                          headers:
+                            - name: x-alb-cluster
+                              string_match:
+                                exact: cluster1_2
+                        route:
+                          cluster: app1_app2_cluster
+                        response_headers_to_add:        
+                          - header:
+                              key: X-Envoy-Cluster
+                              value: Envoy_cluster1_2
+                            append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                      - match: 
+                          prefix: "/"
+                          headers:
+                            - name: x-alb-cluster
+                              string_match:
+                                exact: cluster3_4
+                        route:
+                          cluster: app3_app4_cluster
+                        response_headers_to_add:        
+                          - header:
+                              key: X-Envoy-Cluster
+                              value: Envoy_cluster3_4
+                            append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                      - match: { prefix: "/" }
+                        route:
+                          cluster: allbackend_cluster
+                        response_headers_to_add:        
+                          - header:
+                              key: X-Envoy-Cluster
+                              value: Envoy_cluster_all_backend
+                            append_action: OVERWRITE_IF_EXISTS_OR_ADD
+              http_filters:
+                - name: envoy.filters.http.router
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+  
+  clusters:
+    - name: allbackend_cluster
+      connect_timeout: 1s
+      type: strict_dns
+      lb_policy: round_robin
+      load_assignment: 
+        cluster_name: allbackend_cluster
+        endpoints:
+          - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: 127.0.0.1
+                    port_value: 1111
+            
+            - endpoint:
+                address:
+                  socket_address:
+                    address: 127.0.0.1
+                    port_value: 2222
+            
+            - endpoint:
+                address:
+                  socket_address:
+                    address: 127.0.0.1
+                    port_value: 3333
+            
+            - endpoint:
+                address:
+                  socket_address:
+                    address: 127.0.0.1
+                    port_value: 4444
+    
+    - name: app1_app2_cluster
+      connect_timeout: 5s
+      type: strict_dns
+      lb_policy: round_robin
+      load_assignment: 
+        cluster_name: app1_app2_cluster
+        endpoints:
+          - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: 127.0.0.1
+                    port_value: 1111
+            
+            - endpoint:
+                address:
+                  socket_address:
+                    address: 127.0.0.1
+                    port_value: 2222
+
+    - name: app3_app4_cluster
+      connect_timeout: 5s
+      type: strict_dns
+      lb_policy: round_robin
+      load_assignment: 
+        cluster_name: app3_app4_cluster
+        endpoints:
+          - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: 127.0.0.1
+                    port_value: 3333
+            
+            - endpoint:
+                address:
+                  socket_address:
+                    address: 127.0.0.1
+                    port_value: 4444
