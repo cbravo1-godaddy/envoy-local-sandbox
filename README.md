@@ -30,38 +30,45 @@ pip3 install "uvicorn[standard]"
 
 ### Init python apps
 
-App 1
-```zsh
-cd apps/app1
-uvicorn main:app --reload --port 1111
+1. starting all the apps with a single command
 
+```zsh
+cd apps
+
+python3 init_multiple.py
 ```
 
-App 2
-```zsh
-cd apps/app2
-uvicorn main:app --reload --port 2222
 
+2. Just curiosity: init every app manually
+
+```zsh
+cd apps
+
+# App1
+python3 app --appNumber 1 --port 1111
+
+# App2
+python3 app --appNumber 2 --port 2222
+
+#App3
+python3 app --appNumber 3 --port 3333
+
+#App4
+python3 app --appNumber 4 --port 4444
 ```
 
-App 3
-```zsh
-cd apps/app3
-uvicorn main:app --reload --port 3333
-
-```
-
-App 4
-```zsh
-cd apps/app4
-uvicorn main:app --reload --port 4444
-
-```
 
 ### Init Envoy
 
-envoy --config-path <config file>
+Run: envoy --config-path <config file>
+
 ```zsh
+cd envoy
+
 envoy --config-path assets-experiment.yaml
 
 ```
+
+### Init Haproxy
+
+Look doc at haproxy/README.md
