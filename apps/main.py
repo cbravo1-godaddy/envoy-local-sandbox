@@ -9,14 +9,18 @@ def get_app(app_value):
     app = FastAPI()
     logger = logging.getLogger(__name__)
 
-    @app.get("/")
-    def read_root(request: Request):
+    @app.get("/v1/{sub_path:path}")
+    def read_root(request: Request, sub_path: str):
         x_dsa_host = request.headers.get("x-dsa-host")
+        x_dsa_path = request.headers.get("x-dsa-path")
 
         # Print the header value
         print(f"x-dsa-host: {x_dsa_host}")
+        print(f"x-dsa-path: {x_dsa_path}")
 
-        return {"Hello": f"World from app {app_value}, x-dsa-host: {x_dsa_host}"}
+        return {
+            "Hello": f"World from app {app_value}, req-host: {x_dsa_host}, req-path: {sub_path}"
+        }
 
     @app.get("/static/homepage")
     def get_static_homepage():
@@ -30,6 +34,11 @@ def get_app(app_value):
     @app.get("/admin")
     def get_admin():
         return {"adminState": True}
+
+    @app.get("/")
+    def read_root(request: Request):
+
+        return {"Hello": f"World from app default path"}
 
     return app
 

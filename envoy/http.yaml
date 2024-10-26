@@ -20,14 +20,23 @@ static_resources:
                     # example of blocking an only admin path route
                       - match: { prefix: "/admin" }
                         direct_response: { status: 403, body: {inline_string: "Forbidden"} }
-                      - match: { prefix: "/test" }
+                      - match: 
+                          safe_regex:
+                            regex: "^/(promobanner|display-ads|discountDomains|catalog|_martech|agreements)(/.*)?"
                         route:
                           cluster: allbackend_cluster
-                          prefix_rewrite: /
+                          regex_rewrite:
+                            pattern:
+                              google_re2: {}
+                              regex: "^/(promobanner|display-ads|discountDomains|catalog|_martech|agreements)(/.*)?"
+                            substitution: "/v1/\\1\\2"
                         request_headers_to_add:
                           - header:
                               key: X-DSA-Host
                               value: "%REQ(Host)%"
+                          - header:
+                              key: X-DSA-Path
+                              value: "%REQ(:path)%"
                       - match: { prefix: "/" }
                         route:
                           cluster: allbackend_cluster
