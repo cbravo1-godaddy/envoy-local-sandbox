@@ -19,7 +19,15 @@ static_resources:
                     routes:
                     # example of blocking an only admin path route
                       - match: { prefix: "/admin" }
-                        direct_response: {status: 403, body: {inline_string: "Forbidden"} }
+                        direct_response: { status: 403, body: {inline_string: "Forbidden"} }
+                      - match: { prefix: "/test" }
+                        route:
+                          cluster: allbackend_cluster
+                          prefix_rewrite: /
+                        request_headers_to_add:
+                          - header:
+                              key: X-DSA-Host
+                              value: "%REQ(Host)%"
                       - match: { prefix: "/" }
                         route:
                           cluster: allbackend_cluster
