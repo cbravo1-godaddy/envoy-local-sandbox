@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 import argparse
 import logging
 import uvicorn
@@ -19,7 +19,35 @@ def get_app(app_value):
         print(f"x-dsa-path: {x_dsa_path}")
 
         return {
-            "Hello": f"World from app {app_value}, req-host: {x_dsa_host}, req-path: {sub_path}"
+            "Hello": f"World from app {app_value}, req-host: {x_dsa_host}, req-path: v1/{sub_path}, x-dsa-path: {x_dsa_path}"
+        }
+
+    @app.get("/healthcheck.html")
+    def read_root(request: Request):
+        x_dsa_host = request.headers.get("x-dsa-host")
+        x_dsa_path = request.headers.get("x-dsa-path")
+
+        # Print the header value
+        print("healthcheck: {x_dsa_path}")
+
+        return {"Health": f"app is ok {app_value}, req-host: {x_dsa_path}"}
+
+    @app.get("/swagger/{sub_path:path}")
+    def read_root(request: Request, sub_path: str, response: Response):
+        x_dsa_host = request.headers.get("x-dsa-host")
+        x_dsa_path = request.headers.get("x-dsa-path")
+
+        # Print the header value
+        x_dsa_host = request.headers.get("x-dsa-host")
+        x_dsa_path = request.headers.get("x-dsa-path")
+
+        # Print the header value
+        print(f"swagger x-dsa-host: {x_dsa_host}")
+        print(f"swagger x-dsa-path: {x_dsa_path}")
+
+        response.headers["X-Cat-Dog"] = "alone in the world"
+        return {
+            "Swagger": f"App {app_value}, req-host: {x_dsa_host}, req-path: swagger/{sub_path}, x-dsa-path: {x_dsa_path}"
         }
 
     @app.get("/static/homepage")

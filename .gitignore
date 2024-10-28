@@ -4,6 +4,9 @@
 __pycache__/
 *.py[cod]
 
+#venv
+pyvenv.cfg
+
 # C extensions
 *.so
 

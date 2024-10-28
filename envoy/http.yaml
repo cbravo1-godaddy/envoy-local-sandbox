@@ -23,6 +23,7 @@ static_resources:
                       - match: 
                           safe_regex:
                             regex: "^/(promobanner|display-ads|discountDomains|catalog|_martech|agreements)(/.*)?"
+                          case_sensitive: false
                         route:
                           cluster: allbackend_cluster
                           regex_rewrite:
@@ -37,9 +38,31 @@ static_resources:
                           - header:
                               key: X-DSA-Path
                               value: "%REQ(:path)%"
+                      - match: 
+                          safe_regex:
+                            regex: "^/(healthcheck.html$|swagger)(/.*)?"
+                          case_sensitive: false
+                        route:
+                          cluster: allbackend_cluster
+                          regex_rewrite:
+                        request_headers_to_add:
+                          - header:
+                              key: X-DSA-Host
+                              value: "%REQ(Host)%"
+                          - header:
+                              key: X-DSA-Path
+                              value: "%REQ(:path)%"
+                        response_headers_to_remove:
+                          - X-Cat-Dog
                       - match: { prefix: "/" }
                         route:
                           cluster: allbackend_cluster
+                          regex_rewrite:
+                            pattern:
+                              google_re2: {}
+                              regex: "^/(.*)"
+                            substitution: "/v1/content/\\1"
+                          timeout: 120s
               http_filters:
                 - name: envoy.filters.http.router
                   typed_config:
