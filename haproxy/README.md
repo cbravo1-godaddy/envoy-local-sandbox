@@ -27,6 +27,19 @@ $ sudo docker run -d \
    -p 8404:8404 \
    haproxytech/haproxy-alpine:2.4
 
+#Run with the local python
+
+```sh
+   sudo docker run -d \
+      --name local-haproxy \
+      -v $(pwd):/usr/local/etc/haproxy:ro \
+      -p 80:80 \
+      -p 8404:8404 \
+      haproxytech/haproxy-alpine:2.4
+```
+
+# todo : document how run haproxy pointing to the local instance - deprecate the other server that we dont own the control (no sense for a sandbox goal)
+
 
 docker official images:
 
@@ -39,10 +52,10 @@ docker official images:
 
 4. Delete if required
 
-
-
-$ sudo docker stop web1 && sudo docker rm web1
-$ sudo docker stop web2 && sudo docker rm web2
-$ sudo docker stop web3 && sudo docker rm web3
-$ sudo docker stop haproxy && sudo docker rm local-haproxy
-$ sudo docker network rm haproxy-net
+```sh
+   sudo docker stop web1 && sudo docker rm web1 && 
+   sudo docker stop web2 && sudo docker rm web2 &&
+   sudo docker stop web3 && sudo docker rm web3 &&
+   sudo docker stop local-haproxy && sudo docker rm local-haproxy &&
+   sudo docker network rm haproxy-net
+```
